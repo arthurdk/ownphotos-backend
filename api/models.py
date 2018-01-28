@@ -259,10 +259,13 @@ class Photo(models.Model):
                 face.save()
 
     def _add_to_album_date(self):
+        album_date = None
         if self.exif_timestamp:
             album_date = get_album_date(date=self.exif_timestamp.date())[0]
-            album_date.photos.add(self)
-            album_date.save()
+        else:
+            album_date = get_album_date(date=None)[0]
+        album_date.photos.add(self)
+        album_date.save()
 
     def __str__(self):
         return "%s"%self.image_hash
@@ -319,7 +322,7 @@ class Face(models.Model):
 
 class AlbumDate(models.Model):
     title = models.CharField(blank=True,null=True,max_length=512,db_index=True)
-    date = models.DateField(unique=True,db_index=True)
+    date = models.DateField(unique=True,db_index=True, null=True)
     photos = models.ManyToManyField(Photo)
     favorited = models.BooleanField(default=False,db_index=True)
 
